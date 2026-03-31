@@ -862,8 +862,11 @@ footer::before{content:'';display:block;height:2px;background:linear-gradient(90
     <div class="gallery-header reveal">
       <div class="section-tag" style="justify-content:center;"><div class="section-tag-line"></div><div class="section-tag-text">Gallery</div><div class="section-tag-line" style="transform:scaleX(-1)"></div></div>
       <h2 class="section-title">Our <span>Academy</span> in Action</h2>
+      <p class="section-sub" style="margin:0 auto;max-width:500px;">Real moments from training sessions, competitions & events</p>
     </div>
-    <div class="gallery-grid reveal">
+    <!-- Dynamic gallery from Firebase posts with images -->
+    <div class="gallery-grid reveal" id="gallery-dynamic-grid">
+      <!-- Placeholder tiles shown until Firebase loads -->
       <div class="gallery-item">
         <div class="gallery-thumb" style="background:linear-gradient(135deg,#1a0800,#2d1500);min-height:340px;font-size:80px;">🥢</div>
         <div class="gallery-overlay"></div>
@@ -901,8 +904,8 @@ footer::before{content:'';display:block;height:2px;background:linear-gradient(90
         <div class="gallery-zoom">🔍</div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:50px;" class="reveal">
-      <a href="https://share.google/r4tTIrhUpMkgJlzQU" target="_blank" class="btn-primary" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;padding:16px 32px;box-shadow:0 0 28px rgba(251,191,36,0.3);"><span style="font-size:22px;">📸</span> &nbsp; View Sports Hub App Gallery</a>
+    <div style="text-align:center;margin-top:40px;color:var(--muted);font-size:13px;letter-spacing:1px;" id="gallery-note">
+      📸 Gallery updates automatically when new posts are added in the admin app
     </div>
   </div>
 </section>
@@ -1224,6 +1227,22 @@ function handleForm(btn){
 /* ══ TOAST ══ */
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
+/* ══ GALLERY LIGHTBOX ══ */
+function openGalleryLightbox(imgSrc, label){
+  // Create fullscreen lightbox overlay
+  const existing = document.getElementById('gallery-lightbox-overlay');
+  if(existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'gallery-lightbox-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer;padding:20px;';
+  overlay.innerHTML = `
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:20px;right:24px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;z-index:10;">✕</button>
+    <img src="${imgSrc}" alt="${label}" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px;box-shadow:0 0 60px rgba(56,189,248,0.2);" loading="lazy"/>
+    <div style="color:#fff;font-family:'Cinzel',serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.7);">${label}</div>
+  `;
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
 /* ══ FAQ ACCORDION ══ */
 function toggleFaq(item){
   const isOpen = item.classList.contains('open');
@@ -1729,9 +1748,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ['nav-logo-icon','about-logo','master-photo-inner'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=img;});
       }
       // ── Live Announcements from Firebase posts → Notice Board ──
+      // ── Also update Gallery with post images ──
       if(d.posts){
         try{
           const posts=JSON.parse(d.posts);
+          // Notice board
           const announcements=posts
             .filter(p=>p.pin==1||p.type==='notice'||p.type==='event'||p.type==='result')
             .sort((a,b)=>(b.ts||0)-(a.ts||0))
@@ -1745,6 +1766,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 const icon=p.type==='event'?'📅':p.type==='result'?'🏆':p.pin==1?'📌':'📣';
                 return `<span class="notice-item">${icon} ${txt} ${dateStr}</span>`;
               }).join('');
+            }
+          }
+          // ── Gallery: posts with images → show as real photos ──
+          const galleryPosts = posts.filter(p=>(p.img||p.poster)&&p.type!=='live').sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,6);
+          if(galleryPosts.length > 0){
+            const grid = document.getElementById('gallery-dynamic-grid');
+            const note = document.getElementById('gallery-note');
+            if(grid){
+              const labels={event:'EVENT',result:'CHAMPIONSHIP',notice:'NOTICE',general:'TRAINING'};
+              grid.innerHTML = galleryPosts.map((p,i)=>{ 
+                const imgSrc = p.poster||p.img;
+                const lbl = (p.text||'').replace(/<[^>]*>/g,'').substring(0,30).toUpperCase() || labels[p.type]||'ACADEMY';
+                const isFirst = i===0;
+                return `<div class="gallery-item${isFirst?' gallery-item-featured':''}" onclick="openGalleryLightbox('${imgSrc}','${lbl}')">
+                  <div class="gallery-thumb" style="min-height:${isFirst?'340px':'200px'};background:#060e1c;">
+                    <img src="${imgSrc}" alt="${lbl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>
+                  </div>
+                  <div class="gallery-overlay"></div>
+                  <div class="gallery-label">${lbl}</div>
+                  <div class="gallery-zoom">🔍</div>
+                </div>`;
+              }).join('');
+              if(note) note.textContent = `📸 ${galleryPosts.length} photos from latest events & training sessions`;
             }
           }
         }catch(e){}
