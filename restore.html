@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Uyir Kalai — Data Restore</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#010a12;color:#d0eeff;font-family:'DM Sans',sans-serif;min-height:100vh;padding:16px;}
+.wrap{max-width:500px;margin:0 auto;}
+.header{text-align:center;padding:24px 0 20px;}
+.header h1{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:#4db8ff;}
+.header p{font-size:12px;color:#336688;margin-top:4px;}
+.card{background:#011220;border:1px solid #0a2a44;border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#4db8ff,#25D366);}
+.sec{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#f0c040;margin-bottom:12px;}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:1px;font-family:inherit;transition:.2s;margin-bottom:8px;}
+.btn:active{transform:scale(0.98);}
+.btn-blue{background:linear-gradient(135deg,#4db8ff,#00aaff);color:#010a12;}
+.btn-green{background:linear-gradient(135deg,#25D366,#1aa34a);color:#010a12;}
+.btn-red{background:#1a0000;border:1px solid #F44336;color:#F44336;}
+.btn-gold{background:linear-gradient(135deg,#f0c040,#c9a227);color:#010a12;}
+.stat-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.stat{flex:1;min-width:80px;background:#010d15;border:1px solid #0a2a44;border-radius:10px;padding:12px;text-align:center;}
+.stat .num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#4db8ff;}
+.stat .lbl{font-size:10px;color:#336688;letter-spacing:1px;text-transform:uppercase;}
+.student-item{background:#010d15;border:1px solid #0a2a44;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.student-item img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #4db8ff;flex-shrink:0;}
+.avatar{width:44px;height:44px;border-radius:50%;background:#0a2a44;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.sname{font-size:13px;font-weight:700;color:#d0eeff;}
+.ssub{font-size:11px;color:#336688;margin-top:2px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-top:3px;}
+.b-green{background:#0a2a0a;color:#25D366;border:1px solid #1a4a1a;}
+.b-blue{background:#001a33;color:#4db8ff;border:1px solid #0a3a66;}
+.loader{text-align:center;padding:24px;color:#336688;}
+.spinner{width:32px;height:32px;border:3px solid #001a33;border-top-color:#4db8ff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:30px;font-weight:600;font-size:13px;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none;white-space:nowrap;background:#1a3a1a;color:#25D366;border:1px solid #2a5a2a;}
+.search{width:100%;padding:11px;background:#010d15;border:1.5px solid #0a2a44;border-radius:10px;color:#d0eeff;font-size:13px;font-family:inherit;outline:none;margin-bottom:12px;}
+.search:focus{border-color:#4db8ff;}
+.tab-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.tab{padding:8px 14px;border-radius:20px;border:1.5px solid #0a2a44;background:transparent;color:#336688;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.tab.active{border-color:#4db8ff;background:#001a33;color:#4db8ff;}
+.empty{text-align:center;padding:24px;color:#336688;font-size:13px;}
+.success-banner{background:#011a0d;border:1px solid #25D366;border-radius:10px;padding:14px;text-align:center;display:none;margin-bottom:12px;}
+.success-banner h3{color:#25D366;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
+.success-banner p{font-size:12px;color:#888;margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>🔄 DATA RESTORE</h1>
+    <p>Firebase-ல் இருக்கற old data scan பண்ணி app-ல் restore பண்ணு</p>
+  </div>
+
+  <!-- Step 1: Scan -->
+  <div class="card" id="scanCard">
+    <div class="sec">☁️ Step 1 — Firebase Scan</div>
+    <p style="font-size:13px;color:#336688;margin-bottom:14px;line-height:1.6;">Firebase cloud-ல் save ஆன எல்லா data-வையும் scan பண்ணி காட்டுவோம். Students, Attendance, Fees, Achievements எல்லாம் இங்க தெரியும்.</p>
+    <button class="btn btn-blue" onclick="scanFirebase()">🔍 Scan Firebase Data</button>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader" style="display:none;">
+    <div class="spinner"></div>
+    Firebase-ல் data scan பண்றோம்...
+  </div>
+
+  <!-- Stats -->
+  <div id="statsArea" style="display:none;">
+    <div class="card">
+      <div class="sec">📊 Firebase Data Summary</div>
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="stCount">0</div><div class="lbl">Students</div></div>
+        <div class="stat"><div class="num" id="brCount">0</div><div class="lbl">Branches</div></div>
+        <div class="stat"><div class="num" id="achCount">0</div><div class="lbl">Achievements</div></div>
+        <div class="stat"><div class="num" id="postCount">0</div><div class="lbl">Posts</div></div>
+      </div>
+      <div class="success-banner" id="successBanner">
+        <h3>✅ Restore Complete!</h3>
+        <p>எல்லா data-உம் இந்த device-ல் restore ஆச்சு.<br/>App open பண்ணு — students தெரியும்!</p>
+      </div>
+      <button class="btn btn-green" onclick="restoreToDevice()">📥 Restore to This Device</button>
+      <a href="https://uyirkalaisportsacademy.github.io/-SPORTS-HUB-/index.html" style="text-decoration:none;">
+        <button class="btn btn-gold" style="margin-top:4px;">🚀 Open Admin App</button>
+      </a>
+    </div>
+
+    <!-- Student List -->
+    <div class="card">
+      <div class="sec">🎓 Students</div>
+      <input class="search" id="searchInput" placeholder="Search student name..." oninput="filterStudents()"/>
+      <div class="tab-row" id="branchTabs"></div>
+      <div id="studentList"></div>
+    </div>
+
+    <!-- Attendance Summary -->
+    <div class="card" id="attCard" style="display:none;">
+      <div class="sec">✅ Attendance Data</div>
+      <div id="attSummary"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyCRuQXdMhSyYS69uVaH8n3Kd4YACsbTP5A",
+  authDomain:"sp-uyirkalai.firebaseapp.com",
+  projectId:"sp-uyirkalai",
+  storageBucket:"sp-uyirkalai.firebasestorage.app",
+  messagingSenderId:"917896500550",
+  appId:"1:917896500550:web:99ad36246417ad32554147"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let fbStudents=[], fbBranches=[], fbAch=[], fbPosts=[], fbAtt={}, fbFees={}, fbSettings={};
+let filteredStudents=[], activeBranch='';
+
+window.scanFirebase = async function(){
+  document.getElementById('loader').style.display='block';
+  document.getElementById('scanCard').style.display='none';
+  try{
+    const snap = await getDoc(doc(db,'apps','uyir_kalai'));
+    if(!snap.exists()){toast('❌ Firebase-ல் data இல்லை!');document.getElementById('loader').style.display='none';return;}
+    const d = snap.data();
+    fbStudents  = d.students    ? JSON.parse(d.students)    : [];
+    fbBranches  = d.branches    ? JSON.parse(d.branches)    : [];
+    fbAch       = d.achievements? JSON.parse(d.achievements): [];
+    fbPosts     = d.posts       ? JSON.parse(d.posts)       : [];
+    fbAtt       = d.attendance  ? JSON.parse(d.attendance)  : {};
+    fbFees      = d.fees        ? JSON.parse(d.fees)        : {};
+    fbSettings  = d.settings    ? JSON.parse(d.settings)    : {};
+
+    document.getElementById('stCount').textContent  = fbStudents.length;
+    document.getElementById('brCount').textContent  = fbBranches.length;
+    document.getElementById('achCount').textContent = fbAch.length;
+    document.getElementById('postCount').textContent= fbPosts.length;
+
+    // Branch tabs
+    const tabRow = document.getElementById('branchTabs');
+    tabRow.innerHTML = '<button class="tab active" onclick="setBranch(\'\',this)">All</button>'
+      + fbBranches.map(b=>`<button class="tab" onclick="setBranch('${b.id}',this)">${b.name}</button>`).join('');
+
+    filteredStudents = fbStudents;
+    renderStudents(fbStudents);
+
+    // Attendance summary
+    renderAttSummary();
+
+    document.getElementById('loader').style.display='none';
+    document.getElementById('statsArea').style.display='block';
+    toast('✅ '+ fbStudents.length +' students found!');
+  }catch(e){
+    toast('❌ Error: '+e.message);
+    document.getElementById('loader').style.display='none';
+    document.getElementById('scanCard').style.display='block';
+  }
+};
+
+window.setBranch = function(bid, btn){
+  activeBranch = bid;
+  document.querySelectorAll('.tab-row .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  filterStudents();
+};
+
+window.filterStudents = function(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  filteredStudents = fbStudents.filter(s=>{
+    const matchBranch = !activeBranch || String(s.branch||s.branchId)===String(activeBranch);
+    const matchName   = !q || (s.name||'').toLowerCase().includes(q);
+    return matchBranch && matchName;
+  });
+  renderStudents(filteredStudents);
+};
+
+function renderStudents(list){
+  const el = document.getElementById('studentList');
+  if(!list.length){el.innerHTML='<div class="empty">No students found.</div>';return;}
+  el.innerHTML = list.map(s=>{
+    const br = fbBranches.find(b=>String(b.id)===String(s.branch||s.branchId));
+    return `<div class="student-item">
+      ${s.photo
+        ?`<img src="${s.photo}" />`
+        :`<div class="avatar">👤</div>`}
+      <div style="flex:1;min-width:0;">
+        <div class="sname">${s.name||'-'}</div>
+        <div class="ssub">${s.game||''} · Age: ${s.age||'-'}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">
+          ${br?`<span class="badge b-blue">${br.name}</span>`:''}
+          <span class="badge b-green">${s.level||'Beginner'}</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#336688;text-align:right;flex-shrink:0;">${s.joinDate||''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAttSummary(){
+  const dates = Object.keys(fbAtt);
+  if(!dates.length) return;
+  document.getElementById('attCard').style.display='block';
+  const recent = dates.sort().slice(-7);
+  const el = document.getElementById('attSummary');
+  el.innerHTML = `<div style="font-size:12px;color:#336688;margin-bottom:10px;">${dates.length} days of data found</div>`
+    + recent.map(d=>{
+      const dayData = fbAtt[d]||{};
+      const p = Object.values(dayData).filter(v=>v==='present'||v==='P').length;
+      const a = Object.values(dayData).filter(v=>v==='absent'||v==='A').length;
+      return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #0a2a44;font-size:12px;">
+        <span style="color:#d0eeff;">${d}</span>
+        <span>✅ ${p} Present  ❌ ${a} Absent</span>
+      </div>`;
+    }).join('');
+}
+
+window.restoreToDevice = async function(){
+  try{
+    // Save all data to localStorage (same keys as admin app)
+    function safeLSSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+    safeLSSet('uk3_students',    JSON.stringify(fbStudents));
+    safeLSSet('uk3_branches',    JSON.stringify(fbBranches));
+    safeLSSet('uk3_achievements',JSON.stringify(fbAch));
+    safeLSSet('uk3_posts',       JSON.stringify(fbPosts));
+    safeLSSet('uk3_settings',    JSON.stringify(fbSettings));
+    safeLSSet('uk3_attendance',  JSON.stringify(fbAtt));
+    safeLSSet('uk3_fees',        JSON.stringify(fbFees));
+
+    // Load student photos from student_photos collection
+    const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    let restoredPhotos = 0;
+    for(const s of fbStudents){
+      try{
+        const photoSnap = await getDoc(doc(db,'student_photos','st_'+s.id));
+        if(photoSnap.exists() && photoSnap.data().photo){
+          s.photo = photoSnap.data().photo;
+          restoredPhotos++;
+        }
+      }catch(e){}
+    }
+    if(restoredPhotos > 0){
+      safeLSSet('uk3_students', JSON.stringify(fbStudents));
+      renderStudents(filteredStudents);
+    }
+
+    document.getElementById('successBanner').style.display='block';
+    toast('✅ Restore complete! '+fbStudents.length+' students loaded.');
+  }catch(e){
+    toast('❌ Restore error: '+e.message);
+  }
+};
+
+function toast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m;t.style.opacity=1;
+  setTimeout(()=>t.style.opacity=0,3500);
+}
+</script>
+</body>
+</html>
