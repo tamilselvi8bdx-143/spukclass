@@ -243,7 +243,7 @@ textarea{resize:vertical;min-height:80px;}
           settings: JSON.stringify(spSettings),
           logo: logoCloud,
           pl: JSON.stringify(spPLEntries),
-          ts: Date.now()
+          ts: parseInt(localStorage.getItem('sp_ts')) || Date.now()
         });
       }catch(e){
         console.log('Cloud save SP error:',e);
@@ -304,7 +304,7 @@ textarea{resize:vertical;min-height:80px;}
           web_gal: JSON.stringify(webGalCloud),
           web_vid: JSON.stringify(ukWebVideos),
           web_prog: JSON.stringify(ukWebPrograms),
-          ts: Date.now()
+          ts: parseInt(localStorage.getItem('uk_ts')) || Date.now()
         });
 
         // ── Student photos — each student = separate Firestore doc ──
@@ -339,7 +339,7 @@ textarea{resize:vertical;min-height:80px;}
       const d=snap.data();
       const remoteTs=d.ts||0;
       const localTs=parseInt(localStorage.getItem('sp_ts')||'0');
-      if(remoteTs<=localTs)return; // local is newer, skip
+      if(remoteTs===localTs)return; // local is newer, skip
       if(d.products)spProducts=JSON.parse(d.products);
       if(d.customers)spCustomers=JSON.parse(d.customers);
       if(d.settings)spSettings=JSON.parse(d.settings);
@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:80px;}
       const d=snap.data();
       const remoteTs=d.ts||0;
       const localTs=parseInt(localStorage.getItem('uk_ts')||'0');
-      if(remoteTs<=localTs)return;
+      if(remoteTs===localTs)return;
 
       // Immediately parse all fields
       let incomingStudents = d.students ? JSON.parse(d.students) : ukStudents;
@@ -420,7 +420,7 @@ textarea{resize:vertical;min-height:80px;}
     function renderAllUkScreens() {
       renderUkFeed();renderUkStudents();renderUkBranches();
       updateUkTicker();showUkLogo();ukPopulateBranchDropdowns();ukPopulateStBranch();
-      if(document.getElementById('uk-attendance').classList.add('active')) renderUkAtt();
+      if(document.getElementById('uk-attendance').classList.contains('active')) renderUkAtt();
     }
 
     window.dbReady=true;
@@ -772,7 +772,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
       <div style="font-size:9px;color:#c9a227;letter-spacing:2px;text-transform:uppercase;">National Sports Academy</div>
     </div>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
-      <div id="uk-insta-btn" style="display:none;"><a id="uk-insta-link" href="#" target="_blank" style="text-decoration:none;"><div style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);border-radius:10px;padding:5px 10px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px;">📸 Instagram</div></a></div>
+      <div id="uk-insta-btn" style="display:none;"><a id="uk-insta-link" href="https://www.instagram.com/uyirkalai_national_silambam" target="_blank" style="text-decoration:none;"><div style="background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);border-radius:10px;padding:5px 10px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px;">📸 Instagram</div></a></div>
       <div onclick="goHome()" class="back-btn" style="color:#336688;">🏠 Home</div>
     </div>
   </div>
@@ -815,7 +815,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
         <div class="row">
           <div style="flex:1;min-width:80px;"><div class="lbl">Time</div><input id="uk-ev-time" type="time"/></div>
           <div style="flex:1;min-width:110px;"><div class="lbl">Venue</div><input id="uk-ev-venue" placeholder="Sports Complex"/></div>
-          <div style="flex:1;min-width:100px;"><div class="lbl">Game</div><select id="uk-ev-game"><option>All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option></select></div>
+          <div style="flex:1;min-width:100px;"><div class="lbl">Game</div><select id="uk-ev-game"><option>All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option><option>Kabaddi</option><option>Archery</option><option>Skating</option></select></div>
         </div>
         <div class="lbl" style="margin-bottom:5px;">Event Poster</div>
         <div class="upbox" onclick="document.getElementById('uk-ev-poster-file').click()" style="margin-bottom:10px;">
@@ -861,7 +861,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
           <div class="sec-hd" style="margin-bottom:0;flex:1;">Students</div>
           <select id="uk-st-branch-f" onchange="renderUkStudents()" style="max-width:130px;font-size:12px;padding:6px 8px;"><option value="">All Branches</option></select>
-          <select id="uk-st-game-f" onchange="renderUkStudents()" style="max-width:130px;font-size:12px;padding:6px 8px;"><option value="">All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option></select>
+          <select id="uk-st-game-f" onchange="renderUkStudents()" style="max-width:130px;font-size:12px;padding:6px 8px;"><option value="">All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option><option>Kabaddi</option><option>Archery</option><option>Skating</option></select>
         </div>
         <input id="uk-st-search" placeholder="Search student..." style="margin-bottom:10px;" oninput="renderUkStudents()"/>
         <div id="uk-student-grid" class="student-grid-c"></div>
@@ -895,7 +895,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
               <div style="flex:1;min-width:80px;"><div class="lbl">Level</div><input id="uk-st-level" placeholder="Beginner"/></div>
             </div>
             <div class="row">
-              <div style="flex:1;min-width:110px;"><div class="lbl">Game</div><select id="uk-st-game"><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option></select></div>
+              <div style="flex:1;min-width:110px;"><div class="lbl">Game</div><select id="uk-st-game"><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option><option>Kabaddi</option><option>Archery</option><option>Skating</option></select></div>
               <div style="flex:1;min-width:110px;"><div class="lbl">Branch</div><select id="uk-st-branch"></select></div>
             </div>
             <div class="row">
@@ -920,7 +920,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
         </div>
         <div class="row">
           <div style="flex:1;"><select id="uk-att-branch" onchange="renderUkAtt()" style="font-size:12px;"><option value="">All Branches</option></select></div>
-          <div style="flex:1;"><select id="uk-att-game" onchange="renderUkAtt()" style="font-size:12px;"><option value="">All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option></select></div>
+          <div style="flex:1;"><select id="uk-att-game" onchange="renderUkAtt()" style="font-size:12px;"><option value="">All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option><option>Kabaddi</option><option>Archery</option><option>Skating</option></select></div>
           <button class="btn" style="font-size:11px;padding:8px 12px;border-color:#25D366;color:#25D366;" onclick="markUkAllP()">✓ All P</button>
           <button class="btn" style="font-size:11px;padding:8px 12px;border-color:#4db8ff;color:#4db8ff;" onclick="genUkAttPoster()">🖼️ Daily Poster</button>
         </div>
@@ -964,7 +964,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
         <div class="row">
           <div style="flex:1;"><div class="lbl">Month</div><input id="uk-rep-month" type="month" onchange="renderUkReport()"/></div>
           <div style="flex:1;"><div class="lbl">Branch</div><select id="uk-rep-branch" onchange="renderUkReport()" style="font-size:12px;"><option value="">All</option></select></div>
-          <div style="flex:1;"><div class="lbl">Game</div><select id="uk-rep-game" onchange="renderUkReport()" style="font-size:12px;"><option value="">All</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option></select></div>
+          <div style="flex:1;"><div class="lbl">Game</div><select id="uk-rep-game" onchange="renderUkReport()" style="font-size:12px;"><option value="">All</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option><option>Kabaddi</option><option>Archery</option><option>Skating</option></select></div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
           <button class="btn btn-wa" onclick="shareUkReport()" style="flex:1;">📤 Share WhatsApp</button>
@@ -1078,7 +1078,7 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
           <div style="flex:1;"><div class="lbl">Branch</div><select id="uk-fee-branch" onchange="renderUkFees()" style="font-size:12px;"><option value="">All Branches</option></select></div>
         </div>
         <div class="row" style="margin-top:4px;">
-          <div style="flex:1;"><div class="lbl">Game</div><select id="uk-fee-game" onchange="renderUkFees()" style="font-size:12px;"><option value="">All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option></select></div>
+          <div style="flex:1;"><div class="lbl">Game</div><select id="uk-fee-game" onchange="renderUkFees()" style="font-size:12px;"><option value="">All Games</option><option>Silambam</option><option>Adimurai</option><option>Thang-Ta</option><option>Kurash</option><option>Gatka</option><option>Vietnam Vocotruyen</option><option>Kabaddi</option><option>Archery</option><option>Skating</option></select></div>
           <div style="flex:1;display:flex;align-items:flex-end;gap:4px;">
             <button onclick="ukFeeMonthShift(-1)" style="padding:8px 10px;border-radius:8px;border:1px solid #0a3a1a;background:#011a0d;color:#25D366;font-size:14px;cursor:pointer;flex-shrink:0;">◀</button>
             <button onclick="ukFeeMonthShift(1)" style="padding:8px 10px;border-radius:8px;border:1px solid #0a3a1a;background:#011a0d;color:#25D366;font-size:14px;cursor:pointer;flex-shrink:0;">▶</button>
@@ -1176,6 +1176,59 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
       <button class="btn" onclick="saveUkWebVid()" style="width:100%;margin-top:10px;">Add Video Site</button>
       <div style="margin-top:16px;border-top:1px solid #0a2a44;padding-top:12px;" id="uk-web-vid-list"></div>
     </div>
+
+    <!-- Master Achievement -->
+    <div class="card gold-card">
+      <div class="sec-hd" style="color:#c9a227;">🏅 Master Achievement</div>
+      <div style="font-size:10px;color:#336688;margin-bottom:12px;">Founder/Master certificate & achievement — website-ல் show ஆகும்.</div>
+      <div class="row">
+        <div style="flex:2;"><div class="lbl">Achievement Title</div><input id="uk-master-ach-title" placeholder="State Champion 2024"/></div>
+        <div style="flex:1;"><div class="lbl">Year</div><input id="uk-master-ach-year" placeholder="2024"/></div>
+      </div>
+      <div class="row">
+        <div style="flex:1;"><div class="lbl">Certificate/Photo</div>
+          <div class="upbox" onclick="document.getElementById('uk-master-ach-f').click()">
+            <img id="uk-master-ach-thumb" style="width:100%;height:60px;object-fit:cover;border-radius:8px;display:none;margin:0 auto 4px;"/>
+            <div id="uk-master-ach-ph"><div style="font-size:20px;">🏅</div><div style="color:#d0eeff;font-size:10px;">Upload Photo</div></div>
+            <input type="file" id="uk-master-ach-f" accept="image/*" style="display:none;" onchange="handleUkMasterAchPhoto(event)"/>
+          </div>
+        </div>
+        <div style="flex:2;"><div class="lbl">Certificate Link (optional)</div><input id="uk-master-ach-link" placeholder="https://drive.google.com/..."/></div>
+      </div>
+      <button class="btn btn-gold" onclick="saveUkMasterAch()" style="width:100%;margin-top:8px;">💾 Save Achievement</button>
+      <div id="uk-master-ach-list" style="margin-top:14px;border-top:1px solid #0a2a44;padding-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- Student Achievement for Website -->
+    <div class="card">
+      <div class="sec-hd">🎓 Student Achievement — Website Display</div>
+      <div style="font-size:10px;color:#336688;margin-bottom:12px;">Student-ஐ select பண்ணி photo + certificate link add பண்ணு — website-ல் show ஆகும். Parents share/download பண்ணலாம்.</div>
+      <div class="row">
+        <div style="flex:1;"><div class="lbl">Branch</div><select id="uk-web-ach-branch" onchange="ukFilterWebAchSt()" style="font-size:12px;"><option value="">All Branches</option></select></div>
+        <div style="flex:2;"><div class="lbl">Select Student</div><select id="uk-web-ach-st" style="font-size:12px;"><option value="">-- Select Student --</option></select></div>
+      </div>
+      <div class="row">
+        <div style="flex:2;"><div class="lbl">Achievement Title</div><input id="uk-web-ach-title" placeholder="Gold Medal — District Championship"/></div>
+        <div style="flex:1;"><div class="lbl">Date</div><input id="uk-web-ach-date" type="date"/></div>
+      </div>
+      <div class="row">
+        <div style="flex:1;"><div class="lbl">Achievement Photo</div>
+          <div class="upbox" onclick="document.getElementById('uk-web-ach-f').click()">
+            <img id="uk-web-ach-thumb" style="width:100%;height:60px;object-fit:cover;border-radius:8px;display:none;margin:0 auto 4px;"/>
+            <div id="uk-web-ach-ph"><div style="font-size:20px;">🏆</div><div style="color:#d0eeff;font-size:10px;">Upload Photo</div></div>
+            <input type="file" id="uk-web-ach-f" accept="image/*" style="display:none;" onchange="handleUkWebAchPhoto(event)"/>
+          </div>
+        </div>
+        <div style="flex:2;">
+          <div class="lbl">Certificate Link (Google Drive/Dropbox)</div>
+          <input id="uk-web-ach-cert" placeholder="https://drive.google.com/..."/>
+          <div class="lbl" style="margin-top:4px;">Position / Medal</div>
+          <input id="uk-web-ach-pos" placeholder="Gold / 1st Place"/>
+        </div>
+      </div>
+      <button class="btn btn-accent-uk" onclick="saveUkWebAch()" style="width:100%;margin-top:8px;">🏆 Save to Website</button>
+      <div id="uk-web-ach-list" style="margin-top:14px;border-top:1px solid #0a2a44;padding-top:10px;"></div>
+    </div>
   </div>
 
   <nav class="bottom-nav">
@@ -1188,7 +1241,9 @@ if(sessionStorage.getItem('spuk_auth')==='1'){
   <div class="more-overlay" id="uk-more-overlay" onclick="closeUkMore()"></div>
   <div class="more-menu" id="uk-more-menu" style="bottom:calc(64px + var(--safe-bottom));">
     <div class="more-grid">
-      <div class="more-item" onclick="ukGoScMore('uk-website')"><div style="font-size:24px;">🌐</div><div class="more-item-label">Website</div></div>
+      <div class="more-item" onclick="ukGoScMore('uk-website')"><div style="font-size:24px;">🌐</div><div class="more-item-label">Web CMS</div></div>
+      <div class="more-item"><a href="https://uyirkalaisportsacademy.github.io" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="font-size:24px;">🔗</div><div class="more-item-label" style="color:#d0eeff;">View Site</div></a></div>
+      <div class="more-item"><a href="https://uyirkalaisportsacademy.github.io/admission.html?admin=SPUK" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="font-size:24px;">📝</div><div class="more-item-label" style="color:#d0eeff;">Admissions</div></a></div>
       <div class="more-item" onclick="ukGoScMore('uk-events')"><div style="font-size:24px;">📅</div><div class="more-item-label">Events</div></div>
       <div class="more-item" onclick="ukGoScMore('uk-live')"><div style="font-size:24px;">🔴</div><div class="more-item-label">Live</div></div>
       <div class="more-item" onclick="ukGoScMore('uk-achievements')"><div style="font-size:24px;">🏆</div><div class="more-item-label">Achieve</div></div>
@@ -1683,6 +1738,148 @@ function ukToggleFee(sid,month){
   cur.status=cur.status==='paid'?'pending':'paid';
   ukFeeData[month][sid]=cur;
   ukSaveAll();renderUkFees();
+  if(cur.status==='paid'){
+    setTimeout(()=>ukShowReceiptOptions(sid,month),200);
+  }
+}
+
+async function ukShowReceiptOptions(sid,month){
+  const s=ukStudents.find(x=>String(x.id)===String(sid));
+  if(!s)return;
+  const fd=(ukFeeData[month]||{})[sid]||{amount:0,note:''};
+  const br=ukBranches.find(b=>String(b.id)===String(s.branch||s.branchId));
+  const mStr=new Date(month+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const amt=fd.amount||0;
+  
+  // Generate receipt image
+  const canvas=document.createElement('canvas');
+  canvas.width=800;canvas.height=520;
+  const ctx=canvas.getContext('2d');
+  
+  // Background
+  const bg=ctx.createLinearGradient(0,0,800,520);
+  bg.addColorStop(0,'#010d15');bg.addColorStop(1,'#001a0d');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,800,520);
+  
+  // Border
+  ctx.strokeStyle='#25D366';ctx.lineWidth=6;ctx.strokeRect(10,10,780,500);
+  ctx.strokeStyle='#4db8ff';ctx.lineWidth=2;ctx.strokeRect(18,18,764,484);
+  
+  // Header bar
+  ctx.fillStyle='#011a0d';ctx.fillRect(10,10,780,90);
+  ctx.strokeStyle='#25D366';ctx.lineWidth=1;ctx.strokeRect(10,10,780,90);
+  
+  // Logo (if available)
+  let logoLoaded=false;
+  if(ukLogoURL){
+    try{
+      await new Promise((res)=>{
+        const img=new Image();
+        img.onload=()=>{
+          ctx.save();ctx.beginPath();ctx.arc(70,55,35,0,Math.PI*2);ctx.clip();
+          ctx.drawImage(img,35,20,70,70);ctx.restore();
+          logoLoaded=true;res();
+        };
+        img.onerror=()=>res();
+        img.src=ukLogoURL;
+      });
+    }catch(e){}
+  }
+  if(!logoLoaded){ctx.fillStyle='#25D366';ctx.font='bold 36px Arial';ctx.textAlign='left';ctx.fillText('🥋',40,70);}
+  
+  // Academy name
+  ctx.fillStyle='#25D366';ctx.font='bold 26px Arial';ctx.textAlign='center';
+  ctx.fillText((ukSettings.name||'UYIR KALAI NATIONAL SPORTS ACADEMY').toUpperCase(),400,48);
+  ctx.fillStyle='#4db8ff';ctx.font='14px Arial';
+  ctx.fillText('OFFICIAL FEE RECEIPT',400,75);
+  
+  // Receipt No
+  const rcptNo='UK-'+month.replace('-','')+'-'+String(sid).slice(-4);
+  ctx.textAlign='right';ctx.fillStyle='#4db8ff';ctx.font='12px Arial';
+  ctx.fillText('Receipt: '+rcptNo,780,40);
+  ctx.fillText('Date: '+new Date().toLocaleDateString('en-IN'),780,58);
+  
+  // Student details
+  const rows=[
+    ['👤 Student Name',s.name],
+    ['🥋 Game / Sport',s.game||'-'],
+    ['🏛 Branch',br?br.name:'-'],
+    ['📅 Fee Month',mStr],
+    ['💰 Amount Paid','₹'+amt.toLocaleString('en-IN')],
+    ['📝 Note',fd.note||'-'],
+  ];
+  
+  ctx.textAlign='left';
+  rows.forEach(([lbl,val],i)=>{
+    const y=140+i*52;
+    ctx.fillStyle=i%2===0?'#010d10':'#011215';
+    ctx.fillRect(20,y-22,760,46);
+    ctx.fillStyle='#336688';ctx.font='13px Arial';
+    ctx.fillText(lbl,40,y+5);
+    ctx.fillStyle=lbl.includes('Amount')?'#25D366':'#d0eeff';
+    ctx.font=lbl.includes('Amount')?'bold 22px Arial':'bold 16px Arial';
+    ctx.fillText(val,320,y+6);
+  });
+  
+  // Footer
+  ctx.fillStyle='#011a0d';ctx.fillRect(10,448,780,62);
+  ctx.fillStyle='#4db8ff';ctx.font='bold 14px Arial';ctx.textAlign='center';
+  ctx.fillText('✅ PAYMENT RECEIVED — THANK YOU!',400,472);
+  ctx.fillStyle='#336688';ctx.font='12px Arial';
+  const contact=ukSettings.ph?'📞 '+ukSettings.ph:'📞 8220118489';
+  ctx.fillText(contact+'   ·   '+(ukSettings.addr||''),400,492);
+  
+  const dataUrl=canvas.toDataURL('image/jpeg',0.95);
+  
+  // Show modal
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
+  modal.innerHTML = 
+    '<div style="width:100%;max-width:480px;background:#011220;border:1px solid #25D366;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;max-height:95vh;">'
+    +'<div style="padding:12px;background:#011a0d;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #0a3a1a;flex-shrink:0;">'
+    +'<div style="font-size:14px;font-weight:700;color:#25D366;">✅ Receipt Ready — '+s.name+'</div>'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;color:#ff4444;font-size:22px;cursor:pointer;">✕</button>'
+    +'</div>'
+    +'<div style="overflow-y:auto;padding:12px;background:#010a12;">'
+    +'<img src="'+dataUrl+'" style="width:100%;height:auto;border-radius:8px;border:1px solid #0a2a44;" />'
+    +'</div>'
+    +'<div style="padding:12px;background:#011a0d;border-top:1px solid #0a3a1a;display:flex;gap:8px;flex-shrink:0;">'
+    +'<a download="UK_Receipt_'+s.name+'_'+month+'.jpg" href="'+dataUrl+'" style="flex:1;text-decoration:none;">'
+    +'<button style="width:100%;padding:11px;background:#0a2a44;border:1px solid #4db8ff;border-radius:10px;color:#4db8ff;font-weight:700;font-size:13px;cursor:pointer;">⬇️ Download</button>'
+    +'</a>'
+    +'<button id="uk-rcpt-wa-btn" style="flex:1;padding:11px;background:#011a0d;border:1px solid #25D366;border-radius:10px;color:#25D366;font-weight:700;font-size:13px;cursor:pointer;">📲 WhatsApp</button>'
+    +'</div>'
+    +'</div>';
+  document.body.appendChild(modal);
+  const rcptWaBtn = document.getElementById('uk-rcpt-wa-btn');
+  if(rcptWaBtn) rcptWaBtn.onclick = function(){ ukShareReceiptWA(sid, month, dataUrl); };
+}
+
+function ukShareReceiptWA(sid,month,dataUrl){
+  const s=ukStudents.find(x=>String(x.id)===String(sid));
+  if(!s)return;
+  const fd=(ukFeeData[month]||{})[sid]||{amount:0,note:''};
+  const br=ukBranches.find(b=>String(b.id)===String(s.branch||s.branchId));
+  const mStr=new Date(month+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const msg=`🥋 *${ukSettings.name||'Uyir Kalai National Sports Academy'}*
+
+✅ *Fee Receipt*
+
+👤 Student: *${s.name}*
+🥋 Game: ${s.game||'-'}
+🏛 Branch: ${br?br.name:'-'}
+📅 Month: ${mStr}
+💰 Amount: *₹${(fd.amount||0).toLocaleString('en-IN')}*
+
+✅ Payment Received — Thank You!
+
+${ukSettings.ph?'📞 '+ukSettings.ph:'📞 8220118489'}
+${ukSettings.addr||''}`;
+  const phone=s.parentPhone||s.phone||'';
+  const url=phone
+    ?'https://wa.me/91'+phone.replace(/\D/g,'')+'?text='+encodeURIComponent(msg)
+    :'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
 }
 
 function ukSetFeeAmt(sid,month,val){
@@ -2164,8 +2361,12 @@ async function genUkAttPoster(date) {
     ctx.save();
     ctx.beginPath(); ctx.arc(x, ry, 60, 0, Math.PI*2); ctx.clip();
     if(s.photo) {
-        const img = await new Promise(res => { const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.src=s.photo; });
-        ctx.drawImage(img, x-60, ry-60, 120, 120);
+        const img = await new Promise(res => { const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=()=>res(null); im.src=s.photo; });
+        if(img) { ctx.drawImage(img, x-60, ry-60, 120, 120); }
+        else {
+            ctx.fillStyle = '#011220'; ctx.fillRect(x-60, ry-60, 120, 120);
+            ctx.fillStyle = '#4db8ff'; ctx.font = '50px Arial'; ctx.fillText('👤', x, ry+20);
+        }
     } else {
         ctx.fillStyle = '#011220'; ctx.fillRect(x-60, ry-60, 120, 120);
         ctx.fillStyle = '#4db8ff'; ctx.font = '50px Arial'; ctx.fillText('👤', x, ry+20);
@@ -2183,12 +2384,214 @@ async function genUkAttPoster(date) {
   ctx.textAlign = 'center'; ctx.fillStyle = '#336688'; ctx.font = 'bold 24px Arial';
   ctx.fillText('uyirkalai.in | ' + (ukSettings.ph || ''), 540, canvas.height - 40);
 
-  const link = document.createElement('a');
-  link.download = `UK_Attendance_${date}.jpg`;
-  link.href = canvas.toDataURL('image/jpeg', 0.9);
-  link.click();
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `
+    <div style="width:100%;max-width:500px;background:#011220;border:1px solid #4db8ff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;">
+      <div style="padding:12px;background:#001a33;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #0a2a44;">
+        <div style="font-size:14px;font-weight:bold;color:#4db8ff;">📸 Poster Ready!</div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:#ff4444;font-size:20px;cursor:pointer;padding:0 8px;">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;text-align:center;padding:16px;background:#010a12;">
+        <div style="font-size:12px;color:#25D366;margin-bottom:12px;">✅ Long-press the image below to Share or Save</div>
+        <img src="${dataUrl}" style="width:100%;height:auto;border-radius:8px;border:1px solid #336688;" />
+      </div>
+      <div style="padding:12px;background:#001a33;border-top:1px solid #0a2a44;text-align:center;">
+        <a download="UK_Attendance_${date}.jpg" href="${dataUrl}" style="display:inline-block;text-decoration:none;"><button class="btn btn-gold" style="font-size:14px;padding:10px 24px;">⬇️ Download (Web / Android)</button></a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
   showToast('Poster generated! 🖼️');
 }
+
+// ══ MASTER ACHIEVEMENT ══
+let ukMasterAchievements = JSON.parse(localStorage.getItem('uk3_master_ach')||'[]');
+let ukCurMasterAchPhoto = null;
+function handleUkMasterAchPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{ compressImg(ev.target.result,1200,1200,0.85,d=>{
+    ukCurMasterAchPhoto=d;
+    const t=document.getElementById('uk-master-ach-thumb');
+    t.src=d;t.style.display='block';
+    document.getElementById('uk-master-ach-ph').style.display='none';
+  });};
+  r.readAsDataURL(f);
+}
+function saveUkMasterAch(){
+  const title=document.getElementById('uk-master-ach-title').value.trim();
+  const year=document.getElementById('uk-master-ach-year').value.trim();
+  const link=document.getElementById('uk-master-ach-link').value.trim();
+  if(!title){showToast('⚠️ Title குடு!');return;}
+  ukMasterAchievements.unshift({id:Date.now(),title,year,link,photo:ukCurMasterAchPhoto||''});
+  localStorage.setItem('uk3_master_ach',JSON.stringify(ukMasterAchievements));
+  ukCurMasterAchPhoto=null;
+  document.getElementById('uk-master-ach-title').value='';
+  document.getElementById('uk-master-ach-year').value='';
+  document.getElementById('uk-master-ach-link').value='';
+  document.getElementById('uk-master-ach-thumb').style.display='none';
+  document.getElementById('uk-master-ach-ph').style.display='block';
+  renderUkMasterAchList();showToast('✅ Master achievement saved!');
+}
+function renderUkMasterAchList(){
+  const el=document.getElementById('uk-master-ach-list');
+  if(!el)return;
+  if(!ukMasterAchievements.length){el.innerHTML='<div style="color:#555;font-size:12px;">No achievements yet.</div>';return;}
+  el.innerHTML=ukMasterAchievements.map((a,i)=>`
+    <div style="background:#1a1400;border:1px solid #3a2a00;border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center;">
+      ${a.photo?`<img src="${a.photo}" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid #c9a227;flex-shrink:0;"/>`:'<div style="width:54px;height:54px;border-radius:8px;background:#2a1a00;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🏅</div>'}
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#c9a227;">${a.title}</div>
+        <div style="font-size:11px;color:#884444;">${a.year||''}</div>
+        ${a.link?`<a href="${a.link}" target="_blank" style="font-size:11px;color:#4db8ff;">📄 Certificate Link</a>`:''}
+      </div>
+      <button onclick="ukMasterAchievements.splice(${i},1);localStorage.setItem('uk3_master_ach',JSON.stringify(ukMasterAchievements));renderUkMasterAchList();" style="background:#2a0000;border:1px solid #4a0000;color:#F44336;border-radius:6px;font-size:11px;padding:4px 8px;cursor:pointer;">🗑</button>
+    </div>`).join('');
+}
+
+// ══ WEBSITE STUDENT ACHIEVEMENT ══
+let ukWebAchievements2 = JSON.parse(localStorage.getItem('uk3_web_ach')||'[]');
+let ukCurWebAchPhoto = null;
+function handleUkWebAchPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{ compressImg(ev.target.result,1200,1200,0.85,d=>{
+    ukCurWebAchPhoto=d;
+    const t=document.getElementById('uk-web-ach-thumb');
+    t.src=d;t.style.display='block';
+    document.getElementById('uk-web-ach-ph').style.display='none';
+  });};
+  r.readAsDataURL(f);
+}
+function ukFilterWebAchSt(){
+  const bid=document.getElementById('uk-web-ach-branch').value;
+  const sSel=document.getElementById('uk-web-ach-st');
+  const filtered=bid?ukStudents.filter(s=>String(s.branch||s.branchId)===String(bid)):ukStudents;
+  sSel.innerHTML='<option value="">-- Select Student --</option>'+
+    filtered.map(s=>`<option value="${s.id}">${s.name} (${s.game||''})</option>`).join('');
+}
+function saveUkWebAch(){
+  const sid=document.getElementById('uk-web-ach-st').value;
+  const title=document.getElementById('uk-web-ach-title').value.trim();
+  const date=document.getElementById('uk-web-ach-date').value;
+  const cert=document.getElementById('uk-web-ach-cert').value.trim();
+  const pos=document.getElementById('uk-web-ach-pos').value.trim();
+  if(!sid||!title){showToast('⚠️ Student & Title mandatory!');return;}
+  const s=ukStudents.find(x=>String(x.id)===String(sid));
+  ukWebAchievements2.unshift({
+    id:Date.now(), studentId:sid,
+    studentName:s?s.name:'', game:s?s.game:'',
+    photo:ukCurWebAchPhoto||s?.photo||'',
+    title, date, cert, pos
+  });
+  localStorage.setItem('uk3_web_ach',JSON.stringify(ukWebAchievements2));
+  ukCurWebAchPhoto=null;
+  document.getElementById('uk-web-ach-title').value='';
+  document.getElementById('uk-web-ach-cert').value='';
+  document.getElementById('uk-web-ach-pos').value='';
+  document.getElementById('uk-web-ach-date').value='';
+  document.getElementById('uk-web-ach-thumb').style.display='none';
+  document.getElementById('uk-web-ach-ph').style.display='block';
+  renderUkWebAchList();showToast('✅ Achievement saved to website!');
+  // Auto cloud sync
+  if(window.cloudSaveUK) cloudSaveUK();
+}
+function renderUkWebAchList(){
+  const el=document.getElementById('uk-web-ach-list');
+  if(!el)return;
+  if(!ukWebAchievements2.length){el.innerHTML='<div style="color:#555;font-size:12px;">No achievements yet.</div>';return;}
+  el.innerHTML=ukWebAchievements2.map((a,i)=>`
+    <div style="background:#010d15;border:1px solid #0a2a44;border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center;margin-bottom:6px;">
+      ${a.photo?`<img src="${a.photo}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;border:1px solid #4db8ff;flex-shrink:0;"/>`:'<div style="width:50px;height:50px;border-radius:8px;background:#0a1a2a;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏆</div>'}
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:700;color:#f0c040;">'+sName+' — ${a.pos||''}</div>
+        <div style="font-size:11px;color:#4db8ff;">${a.title}</div>
+        <div style="font-size:10px;color:#336688;">${a.game||''} · ${a.date||''}</div>
+        ${a.cert?`<a href="${a.cert}" target="_blank" style="font-size:10px;color:#25D366;">📄 Certificate</a>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button onclick="ukShareWebAch(${i})" style="background:#011a0d;border:1px solid #25D366;color:#25D366;border-radius:6px;font-size:11px;padding:4px 8px;cursor:pointer;">📤 Share</button>
+        <button onclick="ukWebAchievements2.splice(${i},1);localStorage.setItem('uk3_web_ach',JSON.stringify(ukWebAchievements2));renderUkWebAchList();" style="background:#2a0000;border:1px solid #4a0000;color:#F44336;border-radius:6px;font-size:11px;padding:4px 8px;cursor:pointer;">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function ukShareWebAch(idx){
+  const a=ukWebAchievements2[idx];
+  if(!a)return;
+  // Generate shareable achievement card
+  const canvas=document.createElement('canvas');
+  canvas.width=800;canvas.height=500;
+  const ctx=canvas.getContext('2d');
+  const bg=ctx.createLinearGradient(0,0,800,500);
+  bg.addColorStop(0,'#010d15');bg.addColorStop(1,'#001a33');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,800,500);
+  ctx.strokeStyle='#f0c040';ctx.lineWidth=8;ctx.strokeRect(8,8,784,484);
+  ctx.strokeStyle='#4db8ff';ctx.lineWidth=2;ctx.strokeRect(16,16,768,468);
+  // Header
+  ctx.fillStyle='#001a33';ctx.fillRect(8,8,784,80);
+  if(ukLogoURL){try{await new Promise(res=>{const img=new Image();img.onload=()=>{ctx.save();ctx.beginPath();ctx.arc(60,48,32,0,Math.PI*2);ctx.clip();ctx.drawImage(img,28,16,64,64);ctx.restore();res();};img.onerror=()=>res();img.src=ukLogoURL;});}catch(e){}}
+  ctx.fillStyle='#f0c040';ctx.font='bold 22px Arial';ctx.textAlign='center';
+  ctx.fillText((ukSettings.name||'UYIR KALAI NATIONAL SPORTS ACADEMY').toUpperCase(),400,42);
+  ctx.fillStyle='#4db8ff';ctx.font='14px Arial';ctx.fillText('ACHIEVEMENT CERTIFICATE',400,68);
+  // Student photo
+  if(a.photo){
+    try{await new Promise(res=>{const img=new Image();img.onload=()=>{ctx.save();ctx.beginPath();ctx.arc(110,260,90,0,Math.PI*2);ctx.clip();ctx.drawImage(img,20,170,180,180);ctx.restore();res();};img.onerror=()=>res();img.src=a.photo;});}catch(e){}
+    ctx.strokeStyle='#f0c040';ctx.lineWidth=5;ctx.beginPath();ctx.arc(110,260,90,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.textAlign='left';
+  ctx.fillStyle='#f0c040';ctx.font='bold 32px Arial';ctx.fillText(a.studentName||'',230,130);
+  ctx.fillStyle='#4db8ff';ctx.font='18px Arial';ctx.fillText(a.game||'',230,162);
+  ctx.fillStyle='#25D366';ctx.font='bold 26px Arial';ctx.fillText('🏆 '+a.title,230,210);
+  ctx.fillStyle='#fff';ctx.font='20px Arial';ctx.fillText(a.pos||'',230,250);
+  ctx.fillStyle='#888';ctx.font='16px Arial';ctx.fillText(a.date?new Date(a.date).toLocaleDateString('en-IN',{month:'long',year:'numeric'}):'',230,280);
+  if(a.cert){ctx.fillStyle='#4db8ff';ctx.font='14px Arial';ctx.fillText('📄 Certificate: '+a.cert.slice(0,50)+'...',230,320);}
+  ctx.fillStyle='#336688';ctx.font='14px Arial';ctx.textAlign='center';
+  ctx.fillText((ukSettings.ph?'📞 '+ukSettings.ph:'')+'  ·  '+(ukSettings.addr||''),400,470);
+  const dataUrl=canvas.toDataURL('image/jpeg',0.95);
+  const sName = a.studentName||'';
+  const sTitle = a.title||'';
+  const sPos = a.pos||'';
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
+  modal.innerHTML = '<div style="width:100%;max-width:480px;background:#011220;border:1px solid #f0c040;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;max-height:95vh;">'
+    +'<div style="padding:12px;background:#1a1400;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #3a2a00;flex-shrink:0;">'
+    +'<div style="font-size:14px;font-weight:700;color:#f0c040;">🏆 '+sName+' — Achievement Card</div>'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;color:#ff4444;font-size:22px;cursor:pointer;">✕</button>'
+    +'</div>'
+    +'<div style="overflow-y:auto;padding:12px;"><img src="'+dataUrl+'" style="width:100%;border-radius:8px;"/></div>'
+    +'<div style="padding:12px;background:#1a1400;border-top:1px solid #3a2a00;display:flex;gap:8px;flex-shrink:0;">'
+    +'<a download="UK_Achievement_'+sName+'.jpg" href="'+dataUrl+'" style="flex:1;text-decoration:none;">'
+    +'<button style="width:100%;padding:10px;background:#0a2a44;border:1px solid #4db8ff;border-radius:10px;color:#4db8ff;font-weight:700;font-size:13px;cursor:pointer;">⬇️ Download</button>'
+    +'</a>'
+    +'<button id="uk-ach-wa-btn" style="flex:1;padding:10px;background:#011a0d;border:1px solid #25D366;border-radius:10px;color:#25D366;font-weight:700;font-size:13px;cursor:pointer;">📲 WhatsApp</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+  // Attach WA button after append
+  const waBtn = document.getElementById('uk-ach-wa-btn');
+  if(waBtn){
+    waBtn.onclick = function(){
+      const msg = '🏆 Congratulations ' + sName + '!\n' + sTitle + '\n' + sPos
+        + '\n\n' + (ukSettings.name||'Uyir Kalai Academy')
+        + '\n' + (ukSettings.ph||'8220118489');
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    };
+  }
+}
+
+// Init new CMS lists
+document.addEventListener('DOMContentLoaded',()=>{
+  renderUkMasterAchList();
+  renderUkWebAchList();
+  // Populate web ach branch dropdown
+  const bSel=document.getElementById('uk-web-ach-branch');
+  if(bSel&&ukBranches.length){
+    ukBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;bSel.appendChild(o);});
+  }
+  ukFilterWebAchSt();
+});
 
 async function genUkMonthlyAwardPoster(month) {
   if(!month) month = document.getElementById('uk-rep-month').value;
@@ -2238,8 +2641,12 @@ async function genUkMonthlyAwardPoster(month) {
   ctx.save();
   ctx.beginPath(); ctx.arc(540, ky, 150, 0, Math.PI*2); ctx.clip();
   if(king.s.photo) {
-    const img = await new Promise(res => { const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.src=king.s.photo; });
-    ctx.drawImage(img, 540-150, ky-150, 300, 300);
+    const img = await new Promise(res => { const im=new Image(); im.crossOrigin='anonymous'; im.onload=()=>res(im); im.onerror=()=>res(null); im.src=king.s.photo; });
+    if(img){ ctx.drawImage(img, 540-150, ky-150, 300, 300); }
+    else {
+      ctx.fillStyle = '#0a2a44'; ctx.fillRect(390, 450, 300, 300);
+      ctx.fillStyle = '#fff'; ctx.font = '120px Arial'; ctx.fillText('👤', 540, ky+40);
+    }
   } else {
     ctx.fillStyle = '#0a2a44'; ctx.fillRect(390, 450, 300, 300);
     ctx.fillStyle = '#fff'; ctx.font = '120px Arial'; ctx.fillText('👤', 540, ky+40);
@@ -2277,10 +2684,25 @@ async function genUkMonthlyAwardPoster(month) {
   ctx.fillStyle = '#336688'; ctx.font = '24px Arial';
   ctx.fillText(ukSettings.addr || '', 540, 1810);
 
-  const link = document.createElement('a');
-  link.download = `UK_Awards_${month}.jpg`;
-  link.href = canvas.toDataURL('image/jpeg', 0.9);
-  link.click();
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `
+    <div style="width:100%;max-width:500px;background:#011220;border:1px solid #c9a227;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;">
+      <div style="padding:12px;background:#1a1400;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #3a2a00;">
+        <div style="font-size:14px;font-weight:bold;color:#f0c040;">👑 Award Poster Ready!</div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:#ff4444;font-size:20px;cursor:pointer;padding:0 8px;">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;text-align:center;padding:16px;background:#010a12;">
+        <div style="font-size:12px;color:#25D366;margin-bottom:12px;">✅ Long-press the image below to Share or Save</div>
+        <img src="${dataUrl}" style="width:100%;height:auto;border-radius:8px;border:1px solid #336688;" />
+      </div>
+      <div style="padding:12px;background:#1a1400;border-top:1px solid #3a2a00;text-align:center;">
+        <a download="UK_Awards_${month}.jpg" href="${dataUrl}" style="display:inline-block;text-decoration:none;"><button class="btn btn-gold" style="font-size:14px;padding:10px 24px;">⬇️ Download (Web / Android)</button></a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
   showToast('Award Poster generated! 👑🏆');
 }
 </script>
